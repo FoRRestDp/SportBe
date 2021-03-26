@@ -12,6 +12,4 @@ data class WorkoutTimeBoundaries(
     val startTimestamp: Long,
     @ColumnInfo(name = "end_timestamp")
     val endTimestamp: Long,
-    @ColumnInfo(name = "calories")
-    val calories: Int,
 )

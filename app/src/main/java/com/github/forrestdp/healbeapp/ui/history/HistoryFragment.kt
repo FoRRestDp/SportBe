@@ -27,6 +27,9 @@ class HistoryFragment : Fragment() {
                 .timeSeriesDao,
             requireActivity().application,
             WorkoutTimeBoundaries(startTimestamp = args.startTimestamp, endTimestamp =  args.endTimestamp),
+            TimeSeriesDatabase
+                .getInstance(requireActivity().application)
+                .workoutBoundariesDao,
         )
     }
 

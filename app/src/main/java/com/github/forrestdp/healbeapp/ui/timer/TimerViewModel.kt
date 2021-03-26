@@ -119,7 +119,6 @@ class TimerViewModel(
         val resultWorkout = WorkoutTimeBoundaries(
             startTimestamp = startTimestamp,
             endTimestamp = endTimestamp,
-            calories =
         )
 
         viewModelScope.launch(Dispatchers.IO) {
