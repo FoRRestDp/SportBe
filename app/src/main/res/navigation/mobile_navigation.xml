@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.github.forrestdp.healbeapp.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_feed"
+            app:destination="@id/navigation_feed"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_workout"
+            app:destination="@id/navigation_workout"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_support"
+            app:destination="@id/navigation_support"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_measurement"
+            app:destination="@id/navigation_measurement"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_settings"
+            app:destination="@id/navigation_settings"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_feed"
+        android:name="com.github.forrestdp.healbeapp.ui.feed.FeedFragment"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_feed">
+        <action
+            android:id="@+id/action_navigation_feed_to_navigation_post"
+            app:destination="@id/navigation_post"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_workout"
+        android:name="com.github.forrestdp.healbeapp.ui.workout.WorkoutFragment"
+        android:label="@string/title_notifications"
+        tools:layout="@layout/fragment_workout" />
+
+    <fragment
+        android:id="@+id/navigation_post"
+        android:name="com.github.forrestdp.healbeapp.ui.post.PostFragment"
+        android:label="Post"
+        tools:layout="@layout/fragment_post">
+        <argument
+            android:name="selectedPost"
+            app:argType="com.github.forrestdp.healbeapp.util.ShrinkedWallPost"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.github.forrestdp.healbeapp.ui.settings.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings"/>
+
+    <fragment
+        android:id="@+id/navigation_measurement"
+        android:name="com.github.forrestdp.healbeapp.ui.measurement.MeasurementFragment"
+        android:label="Measurements"
+        tools:layout="@layout/fragment_measurement"/>
+
+    <fragment
+        android:id="@+id/navigation_support"
+        android:name="com.github.forrestdp.healbeapp.ui.support.SupportFragment"
+        android:label="Support"
+        tools:layout="@layout/fragment_support"/>
+</navigation>

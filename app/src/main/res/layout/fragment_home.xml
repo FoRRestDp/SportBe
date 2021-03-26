@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.home.HomeFragment">
+
+
+    <include
+        android:id="@+id/home_toolbar"
+        layout="@layout/toolbar_home"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_workout"
+        style="@style/HomeButton"
+        android:drawableTop="@drawable/ic_workout"
+        android:text="@string/home_workout_button"
+        app:layout_constraintBottom_toTopOf="@+id/button_measurements"
+        app:layout_constraintEnd_toStartOf="@+id/button_feed"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/home_toolbar" />
+
+    <Button
+        android:id="@+id/button_feed"
+        style="@style/HomeButton"
+        android:drawableTop="@drawable/ic_feed"
+        android:paddingBottom="16dp"
+        android:text="@string/home_feed_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/button_workout"
+        app:layout_constraintTop_toTopOf="@+id/button_workout" />
+
+    <Button
+        android:id="@+id/button_settings"
+        style="@style/HomeButton"
+        android:drawableTop="@drawable/ic_settings"
+        android:text="@string/home_settings_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/button_measurements"
+        app:layout_constraintTop_toTopOf="@+id/button_measurements" />
+
+    <Button
+        android:id="@+id/button_measurements"
+        style="@style/HomeButton"
+        android:layout_marginTop="16dp"
+        android:drawableTop="@drawable/ic_measurements"
+        android:text="@string/home_measurements_button"
+        app:layout_constraintBottom_toTopOf="@+id/button_mainapp"
+        app:layout_constraintEnd_toStartOf="@+id/button_settings"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_workout" />
+
+    <Button
+        android:id="@+id/button_mainapp"
+        style="@style/HomeButton"
+        android:layout_marginTop="16dp"
+        android:drawableTop="@drawable/ic_house"
+        android:text="@string/home_mainapp_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_support"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_measurements" />
+
+    <Button
+        android:id="@+id/button_support"
+        style="@style/HomeButton"
+        android:drawableTop="@drawable/ic_support"
+        android:text="@string/home_support_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/button_mainapp"
+        app:layout_constraintTop_toTopOf="@+id/button_mainapp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

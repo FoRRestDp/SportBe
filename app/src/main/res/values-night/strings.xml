@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_workout_button">Тренировка</string>
+    <string name="home_feed_button">Лента</string>
+    <string name="home_measurements_button">Параметры</string>
+    <string name="home_settings_button">Настройки</string>
+    <string name="home_mainapp_button">На главную</string>
+    <string name="home_support_button">Поддержка</string>
+    <string name="home_name_text">Ксения</string>
+    <string name="home_title_text" >Профиль</string>
+    <string name="home_avatar_pic">Avatar</string>
+    <string name="post_title_text">Публикация</string>
+    <string name="feed_title_text">Лента</string>
+    <string name="profile_text">Учётная запись</string>
+    <string name="workout_title_text">Тренировка</string>
+    <string name="workout_in_progress_title">Бег</string>
+</resources>

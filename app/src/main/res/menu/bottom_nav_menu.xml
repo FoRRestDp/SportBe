@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/navigation_timer"
+        android:icon="@drawable/ic_workout_in_progress_timer"
+        android:title="Текущая тренировка" />
+    <item
+        android:id="@+id/navigation_history"
+        android:icon="@drawable/ic_workout_in_progress_history"
+        android:title="Статистика" />
+    <item
+        android:id="@+id/navigation_progress"
+        android:icon="@drawable/ic_workout_in_progress_progress"
+        android:title="Прогресс" />
+</menu>

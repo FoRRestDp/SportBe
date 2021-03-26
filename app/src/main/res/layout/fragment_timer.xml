@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.github.forrestdp.healbeapp.ui.timer.TimerViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.timer.TimerFragment">
+
+        <TextView
+            android:id="@+id/workout_timer_title_text"
+            style="@style/WorkoutInProgressTitleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Текущая тренировка"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/workout_bpm_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="@{String.valueOf(viewModel.pulse == 0 ? `н/д` : viewModel.pulse)}"
+            android:textColor="@color/black"
+            android:textSize="46sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/workout_timer_title_text"
+            app:layout_constraintVertical_bias="0.35" />
+
+        <TextView
+            android:id="@+id/workout_bpm_unit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="уд. мин"
+            android:textColor="@color/gray"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/workout_bpm_text" />
+
+        <TextView
+            android:id="@+id/workout_pulse_badge_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="Пульс"
+            android:textAllCaps="true"
+            android:textColor="@color/gray"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/workout_bpm_unit_text"
+            app:layout_constraintTop_toBottomOf="@+id/workout_bpm_unit_text" />
+
+        <TextView
+            android:id="@+id/workout_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="@{viewModel.time}"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            tools:text="00:00:00"
+            app:layout_constraintBottom_toTopOf="@+id/workout_pause_button"
+            app:layout_constraintEnd_toStartOf="@+id/workout_distance_text"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/workout_pulse_badge_text" />
+
+        <TextView
+            android:id="@+id/workout_distance_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="0,0"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/workout_time_text"
+            app:layout_constraintTop_toTopOf="@+id/workout_time_text" />
+
+        <ImageButton
+            android:id="@+id/workout_pause_button"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_pause"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/workout_stop_button"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/workout_stop_button"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:onClick="@{() -> viewModel.stopWorkout()}"
+            android:src="@drawable/ic_stop_black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/workout_pause_button"
+            app:layout_constraintTop_toTopOf="@+id/workout_pause_button" />
+
+        <TextView
+            android:id="@+id/workout_distance_unit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="км"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:visibility="invisible"
+            app:layout_constraintBaseline_toBaselineOf="@+id/workout_distance_text"
+            app:layout_constraintStart_toEndOf="@+id/workout_distance_text" />
+
+        <TextView
+            android:id="@+id/workout_time_badge_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="Время"
+            android:textAllCaps="true"
+            android:textColor="@color/gray"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toTopOf="@+id/workout_pause_button"
+            app:layout_constraintStart_toStartOf="@+id/workout_time_text"
+            app:layout_constraintTop_toBottomOf="@+id/workout_time_text"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/workout_distance_badge_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/quicksand_bold"
+            android:text="Дистанция"
+            android:textAllCaps="true"
+            android:textColor="@color/gray"
+            android:textSize="11sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/workout_stop_button"
+            app:layout_constraintStart_toStartOf="@+id/workout_distance_text"
+            app:layout_constraintTop_toBottomOf="@+id/workout_distance_text"
+            app:layout_constraintVertical_bias="0.0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
