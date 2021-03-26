@@ -92,15 +92,6 @@ class HistoryViewModel(
             seriesFlow.collect { series ->
                 val localSeries: MutableList<TimeSeriesElement> = series.map { it }.toMutableList()
 
-                if (localSeries.isEmpty()) {
-                    localSeries.add(TimeSeriesElement(1, 70))
-                    localSeries.add(TimeSeriesElement(2, 74))
-                    localSeries.add(TimeSeriesElement(3, 80))
-                    localSeries.add(TimeSeriesElement(4, 90))
-                    localSeries.add(TimeSeriesElement(5, 83))
-                }
-
-                println("KATE: $localSeries")
                 val first = localSeries.first()
                 val entries: List<Entry> = localSeries.map {
                     Entry(
@@ -119,15 +110,15 @@ class HistoryViewModel(
                 val seriesSize = localSeries.size
 
                 val warmupPercentage =
-                    workoutIntensitySeries.filter { it <= 0.6 }.size.toFloat() / seriesSize - 0.5f
+                    workoutIntensitySeries.filter { it <= 0.6 }.size.toFloat() / seriesSize
                 val normalPercentage =
-                    workoutIntensitySeries.filter { it > 0.6 && it <= 0.7 }.size.toFloat() / seriesSize + 0.1f
+                    workoutIntensitySeries.filter { it > 0.6 && it <= 0.7 }.size.toFloat() / seriesSize
                 val aerobicPercentage =
-                    workoutIntensitySeries.filter { it > 0.7 && it <= 0.8 }.size.toFloat() / seriesSize + 0.1f
+                    workoutIntensitySeries.filter { it > 0.7 && it <= 0.8 }.size.toFloat() / seriesSize
                 val anaerobicPercentage =
-                    workoutIntensitySeries.filter { it > 0.8 && it <= 0.9 }.size.toFloat() / seriesSize + 0.2f
+                    workoutIntensitySeries.filter { it > 0.8 && it <= 0.9 }.size.toFloat() / seriesSize
                 val maximumPercentage =
-                    workoutIntensitySeries.filter { it > 0.9 }.size.toFloat() / seriesSize + 0.1f
+                    workoutIntensitySeries.filter { it > 0.9 }.size.toFloat() / seriesSize
 
                 val pieEntries = listOf(
                     PieEntry(warmupPercentage, "Лёгкая активность"),
