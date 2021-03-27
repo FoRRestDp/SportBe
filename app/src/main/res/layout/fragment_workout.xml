@@ -68,6 +68,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
+                        android:checked="@{viewModel.isRunningSelected}"
                         android:text="Бег/ходьба" />
                 </LinearLayout>
 
@@ -99,6 +100,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
+                        android:checked="@{viewModel.isCyclingSelected}"
                         android:text="Велопрогулка" />
                 </LinearLayout>
 
@@ -133,6 +135,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
+                        android:checked="@{viewModel.isFitnessSelected}"
                         android:text="В зале" />
                 </LinearLayout>
 
@@ -167,6 +170,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
+                        android:checked="@{viewModel.isYogaSelected}"
                         android:text="Йога" />
                 </LinearLayout>
 
@@ -234,6 +238,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
+                    android:checked="@{viewModel.isBeFitSelected()}"
                     android:text="Поддержка формы"
                     android:textSize="11sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -245,6 +250,7 @@
                     android:id="@+id/radio_fatburn"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:checked="@{viewModel.isFatBurningSelected()}"
                     android:text="Сжигание жира"
                     android:textSize="11sp"
                     app:layout_constraintEnd_toStartOf="@+id/radio_stamina"
@@ -257,6 +263,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginEnd="32dp"
+                    android:checked="@{viewModel.isStaminaSelected()}"
                     android:text="Развитие выносливости"
                     android:textSize="11sp"
                     app:layout_constraintBottom_toBottomOf="@+id/radio_fit"

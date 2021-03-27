@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import androidx.annotation.NonNull
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,8 +21,6 @@ const val WORKOUT_IN_PROGRESS_EXTRA = "com.github.forrestdp.healbeapp.WorkoutInP
 class WorkoutFragment : Fragment() {
 
     private val workoutViewModel by viewModels<WorkoutViewModel>()
-    private lateinit var modesRadioGroupList: List<RadioButton>
-    private lateinit var purposesRadioGroupList: List<RadioButton>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,6 +29,7 @@ class WorkoutFragment : Fragment() {
     ): View {
         workoutViewModel.titleImage =
             ContextCompat.getDrawable(requireContext(), R.drawable.ic_workout_title)!!
+
         val binding = FragmentWorkoutBinding.inflate(layoutInflater)
 
         binding.lifecycleOwner = this
@@ -41,21 +39,21 @@ class WorkoutFragment : Fragment() {
             it.findNavController().navigateUp()
         }
 
-        modesRadioGroupList = listOf(
-            binding.radioRunning,
-            binding.radioCycling,
-            binding.radioFitness,
-            binding.radioYoga,
+        val buttonModePairs = listOf(
+            binding.radioRunning to WorkoutMode.RUNNING,
+            binding.radioCycling to WorkoutMode.CYCLING,
+            binding.radioFitness to WorkoutMode.FITNESS,
+            binding.radioYoga to WorkoutMode.YOGA,
         )
 
-        purposesRadioGroupList = listOf(
-            binding.radioFit,
-            binding.radioFatburn,
-            binding.radioStamina,
+        val buttonPurposePairs = listOf(
+            binding.radioFit to WorkoutPurpose.BE_FIT,
+            binding.radioFatburn to WorkoutPurpose.FAT_BURNING,
+            binding.radioStamina to WorkoutPurpose.STAMINA_DEVELOPMENT,
         )
 
-        initializeModeRadioGroupBindings(binding, modesRadioGroupList)
-        initializePurposeRadioGroupBindings(binding, purposesRadioGroupList)
+        initializeModeRadioGroupBindings(buttonModePairs)
+        initializePurposeRadioGroupBindings(buttonPurposePairs)
 
         workoutViewModel.startWorkoutInProgressActivity.observe(viewLifecycleOwner) { workoutSettings ->
             if (workoutSettings != null) {
@@ -71,58 +69,27 @@ class WorkoutFragment : Fragment() {
             workoutViewModel.startWorkout()
         }
 
+
+
         return binding.root
     }
 
-    private fun initializePurposeRadioGroupBindings(binding: FragmentWorkoutBinding, list: List<RadioButton>) {
-        binding.radioFit.setOnCheckedChangeListener { radioView, isChecked ->
-            if (isChecked) {
-                workoutViewModel.setWorkoutPurpose(WorkoutPurpose.BE_FIT)
-                list.filter { it != radioView }.forEach { it.isChecked = false }
-            }
-        }
-
-        binding.radioFatburn.setOnCheckedChangeListener { radioView, isChecked ->
-            if (isChecked) {
-                workoutViewModel.setWorkoutPurpose(WorkoutPurpose.FAT_BURNING)
-                list.filter { it != radioView }.forEach { it.isChecked = false }
-            }
-        }
-
-        binding.radioStamina.setOnCheckedChangeListener { radioView, isChecked ->
-            if (isChecked) {
-                workoutViewModel.setWorkoutPurpose(WorkoutPurpose.STAMINA_DEVELOPMENT)
-                list.filter { it != radioView }.forEach { it.isChecked = false }
+    private fun initializePurposeRadioGroupBindings(buttonPurposePairs: List<Pair<RadioButton, WorkoutPurpose>>) {
+        for ((button, purpose) in buttonPurposePairs) {
+            button.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    workoutViewModel.setWorkoutPurpose(purpose)
+                }
             }
         }
     }
 
-    private fun initializeModeRadioGroupBindings(binding: FragmentWorkoutBinding, list: List<RadioButton>) {
-        binding.radioRunning.setOnCheckedChangeListener { radioView, isChecked ->
-            if (isChecked) {
-                workoutViewModel.setWorkoutMode(WorkoutMode.RUNNING)
-                list.filter { it != radioView }.forEach { it.isChecked = false }
-            }
-        }
-
-        binding.radioCycling.setOnCheckedChangeListener { radioView, isChecked ->
-            if (isChecked) {
-                workoutViewModel.setWorkoutMode(WorkoutMode.CYCLING)
-                list.filter { it != radioView }.forEach { it.isChecked = false }
-            }
-        }
-
-        binding.radioFitness.setOnCheckedChangeListener { radioView, isChecked ->
-            if (isChecked) {
-                workoutViewModel.setWorkoutMode(WorkoutMode.FITNESS)
-                list.filter { it != radioView }.forEach { it.isChecked = false }
-            }
-        }
-
-        binding.radioYoga.setOnCheckedChangeListener { radioView, isChecked ->
-            if (isChecked) {
-                workoutViewModel.setWorkoutMode(WorkoutMode.YOGA)
-                list.filter { it != radioView }.forEach { it.isChecked = false }
+    private fun initializeModeRadioGroupBindings(buttonModePairs: List<Pair<RadioButton, WorkoutMode>>) {
+        for ((button, mode) in buttonModePairs) {
+            button.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    workoutViewModel.setWorkoutMode(mode)
+                }
             }
         }
     }

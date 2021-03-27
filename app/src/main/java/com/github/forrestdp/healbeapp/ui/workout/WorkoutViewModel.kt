@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import com.github.forrestdp.healbeapp.model.WorkoutMode
 import com.github.forrestdp.healbeapp.model.WorkoutPurpose
 import com.github.forrestdp.healbeapp.model.WorkoutSettings
@@ -17,18 +18,32 @@ class WorkoutViewModel : ViewModel(), FragmentToolbarable {
     private val _startWorkoutInProgressActivity = MutableLiveData<WorkoutSettings?>()
     val startWorkoutInProgressActivity: LiveData<WorkoutSettings?> = _startWorkoutInProgressActivity
 
-    private val workoutSettings = WorkoutSettings(WorkoutMode.RUNNING, WorkoutPurpose.BE_FIT)
+    private val _currentWorkoutMode = MutableLiveData(WorkoutMode.RUNNING)
+    private val _currentWorkoutPurpose = MutableLiveData(WorkoutPurpose.BE_FIT)
+
+    val isRunningSelected: LiveData<Boolean> = _currentWorkoutMode.map { it == WorkoutMode.RUNNING }
+    val isCyclingSelected: LiveData<Boolean> = _currentWorkoutMode.map { it == WorkoutMode.CYCLING }
+    val isFitnessSelected: LiveData<Boolean> = _currentWorkoutMode.map { it == WorkoutMode.FITNESS }
+    val isYogaSelected: LiveData<Boolean> = _currentWorkoutMode.map { it == WorkoutMode.YOGA }
+
+    val isBeFitSelected: LiveData<Boolean> = _currentWorkoutPurpose.map { it == WorkoutPurpose.BE_FIT }
+    val isFatBurningSelected: LiveData<Boolean> = _currentWorkoutPurpose.map { it == WorkoutPurpose.FAT_BURNING }
+    val isStaminaSelected: LiveData<Boolean> = _currentWorkoutPurpose.map { it == WorkoutPurpose.STAMINA_DEVELOPMENT }
+
 
     fun setWorkoutMode(mode: WorkoutMode) {
-        workoutSettings.mode = mode
+        _currentWorkoutMode.value = mode
+
     }
 
     fun setWorkoutPurpose(purpose: WorkoutPurpose) {
-        workoutSettings.purpose = purpose
+        _currentWorkoutPurpose.value = purpose
     }
 
     fun startWorkout() {
-        _startWorkoutInProgressActivity.value = workoutSettings
+        val mode = requireNotNull(_currentWorkoutMode.value)
+        val purpose = requireNotNull(_currentWorkoutPurpose.value)
+        _startWorkoutInProgressActivity.value = WorkoutSettings(mode, purpose)
     }
 
     fun startWorkoutComplete() {
