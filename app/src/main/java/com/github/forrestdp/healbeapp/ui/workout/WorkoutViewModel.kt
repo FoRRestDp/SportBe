@@ -26,17 +26,27 @@ class WorkoutViewModel : ViewModel(), FragmentToolbarable {
     val isFitnessSelected: LiveData<Boolean> = _currentWorkoutMode.map { it == WorkoutMode.FITNESS }
     val isYogaSelected: LiveData<Boolean> = _currentWorkoutMode.map { it == WorkoutMode.YOGA }
 
-    val isBeFitSelected: LiveData<Boolean> = _currentWorkoutPurpose.map { it == WorkoutPurpose.BE_FIT }
-    val isFatBurningSelected: LiveData<Boolean> = _currentWorkoutPurpose.map { it == WorkoutPurpose.FAT_BURNING }
-    val isStaminaSelected: LiveData<Boolean> = _currentWorkoutPurpose.map { it == WorkoutPurpose.STAMINA_DEVELOPMENT }
+    val isBeFitSelected: LiveData<Boolean> =
+        _currentWorkoutPurpose.map { it == WorkoutPurpose.BE_FIT }
+    val isFatBurningSelected: LiveData<Boolean> =
+        _currentWorkoutPurpose.map { it == WorkoutPurpose.FAT_BURNING }
+    val isStaminaSelected: LiveData<Boolean> =
+        _currentWorkoutPurpose.map { it == WorkoutPurpose.STAMINA_DEVELOPMENT }
 
+    fun runningChecked() = setWorkoutMode(WorkoutMode.RUNNING)
+    fun cyclingChecked() = setWorkoutMode(WorkoutMode.CYCLING)
+    fun fitnessChecked() = setWorkoutMode(WorkoutMode.FITNESS)
+    fun yogaChecked() = setWorkoutMode(WorkoutMode.YOGA)
 
-    fun setWorkoutMode(mode: WorkoutMode) {
+    fun beFitChecked() = setWorkoutPurpose(WorkoutPurpose.BE_FIT)
+    fun fatBurningChecked() = setWorkoutPurpose(WorkoutPurpose.FAT_BURNING)
+    fun staminaChecked() = setWorkoutPurpose(WorkoutPurpose.STAMINA_DEVELOPMENT)
+
+    private fun setWorkoutMode(mode: WorkoutMode) {
         _currentWorkoutMode.value = mode
-
     }
 
-    fun setWorkoutPurpose(purpose: WorkoutPurpose) {
+    private fun setWorkoutPurpose(purpose: WorkoutPurpose) {
         _currentWorkoutPurpose.value = purpose
     }
 

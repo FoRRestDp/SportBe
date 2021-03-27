@@ -59,6 +59,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
+                        android:onClick="@{() -> viewModel.runningChecked()}"
                         android:scaleType="centerInside"
                         android:src="@drawable/ic_workout_running" />
 
@@ -69,6 +70,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:checked="@{viewModel.isRunningSelected}"
+                        android:onClick="@{() -> viewModel.runningChecked()}"
                         android:text="Бег/ходьба" />
                 </LinearLayout>
 
@@ -91,6 +93,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
+                        android:onClick="@{() -> viewModel.cyclingChecked()}"
                         android:scaleType="centerInside"
                         android:src="@drawable/ic_workout_cycling" />
 
@@ -101,6 +104,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:checked="@{viewModel.isCyclingSelected}"
+                        android:onClick="@{() -> viewModel.cyclingChecked()}"
                         android:text="Велопрогулка" />
                 </LinearLayout>
 
@@ -126,6 +130,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
+                        android:onClick="@{() -> viewModel.fitnessChecked()}"
                         android:scaleType="centerInside"
                         android:src="@drawable/ic_workout_fitness" />
 
@@ -136,6 +141,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:checked="@{viewModel.isFitnessSelected}"
+                        android:onClick="@{() -> viewModel.fitnessChecked()}"
                         android:text="В зале" />
                 </LinearLayout>
 
@@ -161,6 +167,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
+                        android:onClick="@{() -> viewModel.yogaChecked()}"
                         android:scaleType="centerInside"
                         android:src="@drawable/ic_workout_yoga" />
 
@@ -171,6 +178,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:checked="@{viewModel.isYogaSelected}"
+                        android:onClick="@{() -> viewModel.yogaChecked()}"
                         android:text="Йога" />
                 </LinearLayout>
 
@@ -239,6 +247,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
                     android:checked="@{viewModel.isBeFitSelected()}"
+                    android:onClick="@{() -> viewModel.beFitChecked()}"
                     android:text="Поддержка формы"
                     android:textSize="11sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -251,6 +260,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:checked="@{viewModel.isFatBurningSelected()}"
+                    android:onClick="@{() -> viewModel.fatBurningChecked()}"
                     android:text="Сжигание жира"
                     android:textSize="11sp"
                     app:layout_constraintEnd_toStartOf="@+id/radio_stamina"
@@ -264,6 +274,7 @@
                     android:layout_height="0dp"
                     android:layout_marginEnd="32dp"
                     android:checked="@{viewModel.isStaminaSelected()}"
+                    android:onClick="@{() -> viewModel.staminaChecked()}"
                     android:text="Развитие выносливости"
                     android:textSize="11sp"
                     app:layout_constraintBottom_toBottomOf="@+id/radio_fit"

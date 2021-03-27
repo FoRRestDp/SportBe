@@ -39,22 +39,6 @@ class WorkoutFragment : Fragment() {
             it.findNavController().navigateUp()
         }
 
-        val buttonModePairs = listOf(
-            binding.radioRunning to WorkoutMode.RUNNING,
-            binding.radioCycling to WorkoutMode.CYCLING,
-            binding.radioFitness to WorkoutMode.FITNESS,
-            binding.radioYoga to WorkoutMode.YOGA,
-        )
-
-        val buttonPurposePairs = listOf(
-            binding.radioFit to WorkoutPurpose.BE_FIT,
-            binding.radioFatburn to WorkoutPurpose.FAT_BURNING,
-            binding.radioStamina to WorkoutPurpose.STAMINA_DEVELOPMENT,
-        )
-
-        initializeModeRadioGroupBindings(buttonModePairs)
-        initializePurposeRadioGroupBindings(buttonPurposePairs)
-
         workoutViewModel.startWorkoutInProgressActivity.observe(viewLifecycleOwner) { workoutSettings ->
             if (workoutSettings != null) {
                 val intent = Intent(requireActivity(), WorkoutInProgressActivity::class.java).apply {
@@ -72,25 +56,5 @@ class WorkoutFragment : Fragment() {
 
 
         return binding.root
-    }
-
-    private fun initializePurposeRadioGroupBindings(buttonPurposePairs: List<Pair<RadioButton, WorkoutPurpose>>) {
-        for ((button, purpose) in buttonPurposePairs) {
-            button.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    workoutViewModel.setWorkoutPurpose(purpose)
-                }
-            }
-        }
-    }
-
-    private fun initializeModeRadioGroupBindings(buttonModePairs: List<Pair<RadioButton, WorkoutMode>>) {
-        for ((button, mode) in buttonModePairs) {
-            button.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    workoutViewModel.setWorkoutMode(mode)
-                }
-            }
-        }
     }
 }
