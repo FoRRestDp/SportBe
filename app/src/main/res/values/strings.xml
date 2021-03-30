@@ -40,4 +40,5 @@
         <item>Русский</item>
         <item>Английский</item>
     </string-array>
+    <string name="workout_history_line_chart_label">Динамика пульса</string>
 </resources>

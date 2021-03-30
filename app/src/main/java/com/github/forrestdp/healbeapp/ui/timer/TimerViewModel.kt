@@ -2,134 +2,165 @@ package com.github.forrestdp.healbeapp.ui.timer
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.github.forrestdp.healbeapp.model.database.timeseries.TimeSeriesDao
-import com.github.forrestdp.healbeapp.model.database.timeseries.TimeSeriesElement
-import com.github.forrestdp.healbeapp.model.database.timestamps.WorkoutTimeBoundaries
-import com.github.forrestdp.healbeapp.model.database.timestamps.WorkoutTimeBoundariesDao
-import com.github.forrestdp.healbeapp.util.create
+import com.github.forrestdp.healbeapp.model.database.SportBeDatabaseDao
+import com.github.forrestdp.healbeapp.model.database.entities.HeartRateSeriesElement
+import com.github.forrestdp.healbeapp.model.database.entities.Workout
 import com.healbe.healbesdk.business_api.HealbeSdk
-import com.healbe.healbesdk.business_api.user.data.HealbeSessionState
-import com.healbe.healbesdk.business_api.user_storage.entity.HealbeDevice
-import com.healbe.healbesdk.device_api.ClientState
+import com.healbe.healbesdk.business_api.user.data.DistanceUnits
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.rx2.asFlow
-import kotlinx.coroutines.rx2.await
 import java.util.*
+import kotlin.math.roundToInt
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 @ExperimentalCoroutinesApi
 class TimerViewModel(
-    val timeSeriesTable: TimeSeriesDao,
-    val workoutBoundariesTable: WorkoutTimeBoundariesDao,
+    private val sportBeDatabase: SportBeDatabaseDao,
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val email: String = "egorponomarev93@gmail.com"
-    private val password: String = "dYnfoc-quxmiq-4fewka"
-    private val device: HealbeDevice = HealbeDevice.create(
-        name = "Healbe 78:9B:AF",
-        mac = "88:6B:0F:78:9B:AF",
-        pin = "091297",
-    )
-
-    private val pulseValues = mutableListOf<TimeSeriesElement>()
-
+    private val currentWorkoutHeartRateSeries = mutableListOf<HeartRateSeriesElement>()
     private val _pulse = MutableLiveData(0)
     val pulse: LiveData<Int> = _pulse
 
-    private val _time = MutableLiveData("00:00:00")
-    val time: LiveData<String> = _time
+    private val _isWorkoutPaused = MutableLiveData(false)
+    val isWorkoutPaused: LiveData<Boolean> = _isWorkoutPaused
 
-    private val _navigateToHistoryFragment = MutableLiveData<WorkoutTimeBoundaries?>(null)
-    val navigateToHistoryFragment: LiveData<WorkoutTimeBoundaries?> = _navigateToHistoryFragment
+    private val _currentWorkoutId = MutableLiveData<Long?>(null)
 
-    private var elapsedSeconds = 0
-    private var isTimerWorking = true
+    val isWorkoutStopped: LiveData<Boolean> = _currentWorkoutId.map { it == null }
 
-    private var startTimestamp: Long = 0
-    private var endTimestamp: Long = 0
+    private val _currentTimeSecs = MutableLiveData(0L)
+    val time: LiveData<String> = _currentTimeSecs.map {
+        val hours = it / 3600
+        val minutes = (it % 3600) / 60
+        val seconds = it % 60
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
+    }
 
-    init {
-        startTimer()
+    private val _navigateToHistoryFragment = MutableLiveData<Long?>()
+    val navigateToHistoryFragment: LiveData<Long?> = _navigateToHistoryFragment
 
-        viewModelScope.launch {
-            HealbeSdk.init(application.applicationContext).await()
-            with(HealbeSdk.get()) {
-//                withContext(Dispatchers.IO) {
-//                    USER.prepareSession().await()
-//                    println("EGOR: prepared session")
-//                    val sessionState = USER.login(email, password).await()
-//                    println("EGOR: logged in")
-//                    if (!HealbeSessionState.isUserValid(sessionState)) {
-////                    throw RuntimeException("user invalid")
-//                        println("User is invalid")
-//                    }
-//                    GOBE.set(device).await()
-//                    println("EGOR: set device")
-//                    GOBE.connect().await()
-//                    println("EGOR: connected")
-//                    GOBE.observeConnectionState().asFlow()
-////                        .onEach { _status.value = it.toString() }
-//                        .takeWhile { it != ClientState.READY }
-//                        .collect()
-//                }
-                TASKS.observeHeartRate().asFlow()
-                    .flowOn(Dispatchers.IO)
-                    .onEach {
-                        println("EGOR: ${it.heartRate}")
-                    }
-                    .collect {
-                        if (!it.isEmpty && it.heartRate != 0) {
-                            if (startTimestamp == 0L) {
-                                startTimestamp = it.timestamp
-                            }
-                            pulseValues.add(TimeSeriesElement(it.timestamp, it.heartRate))
-                            _pulse.value = it.heartRate
-                        }
-                    }
+    private lateinit var timerJob: Job
+    private lateinit var heartObservationJob: Job
 
-            }
+    private var stepCountOnStart = -1
+    private var spentKcalOnStart = -1
+    private var distanceMOnStart = -1
+
+    fun startOrResumeWorkout() {
+        _isWorkoutPaused.value = false
+        timerJob = viewModelScope.launch {
+            startTimer()
+        }
+
+        heartObservationJob = viewModelScope.launch {
+            startHeartRateObservation()
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val energySummary = HealbeSdk.get().HEALTH_DATA.getEnergySummary(0).awaitFirst().get()
+            stepCountOnStart = energySummary?.steps ?: 0
+            println("DAVE: steps at start ${energySummary?.steps ?: 0}")
+            spentKcalOnStart = energySummary?.activityKcal ?: 0
+            distanceMOnStart = energySummary?.getDistance(DistanceUnits.M)?.roundToInt() ?: 0
         }
     }
 
-    private fun startTimer() {
-        viewModelScope.launch {
-            while (isTimerWorking) {
-                delay(1000)
-                elapsedSeconds++
-                val hours = elapsedSeconds / 3600
-                val minutes = (elapsedSeconds % 3600) / 60
-                val seconds = elapsedSeconds % 60
-                val time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
-                _time.postValue(time)
-            }
-        }
+    fun pauseWorkout() {
+        _isWorkoutPaused.value = true
+        timerJob.cancel()
+        heartObservationJob.cancel()
+        _pulse.value = 0
     }
 
-    fun stopWorkout() {
-        // HealbeSdk.get().TASKS.stopTasks()
-        viewModelScope.launch(Dispatchers.IO) {
-            timeSeriesTable.insertAll(pulseValues)
-        }
-        println("EGOR: $pulseValues")
-        endTimestamp = pulseValues.lastOrNull()?.timestamp ?: startTimestamp
-        val resultWorkout = WorkoutTimeBoundaries(
-            startTimestamp = startTimestamp,
-            endTimestamp = endTimestamp,
-        )
+    fun stopWorkoutAndNavigateToHistory() {
+        _isWorkoutPaused.value = false
+
+        timerJob.cancel()
+        _currentTimeSecs.value = 0
+
+        heartObservationJob.cancel()
+        val lastWorkoutId = requireNotNull(_currentWorkoutId.value)
+        _pulse.value = 0
+        _currentWorkoutId.value = null
+
+        _navigateToHistoryFragment.value = lastWorkoutId
 
         viewModelScope.launch(Dispatchers.IO) {
-            if (startTimestamp != endTimestamp) {
-                workoutBoundariesTable.insertWorkout(resultWorkout)
+            if (currentWorkoutHeartRateSeries.isEmpty()) {
+                val lastWorkout =
+                    requireNotNull(sportBeDatabase.getWorkoutById(lastWorkoutId).first())
+                sportBeDatabase.deleteWorkout(lastWorkout)
+                return@launch
             }
+
+            sportBeDatabase.insertHeartRateSeries(currentWorkoutHeartRateSeries)
+
+            currentWorkoutHeartRateSeries.clear()
+
+            val endTimestamp = System.currentTimeMillis()
+
+            val energySummary = HealbeSdk.get().HEALTH_DATA.getEnergySummary(0).awaitFirst().get()
+
+            val stepCountAtEnd = energySummary?.steps ?: 0
+            println("DAVE: steps at end: $stepCountAtEnd")
+            val stepCount = stepCountAtEnd - stepCountOnStart
+            stepCountOnStart = -1
+
+            val distanceMAtEnd = energySummary?.getDistance(DistanceUnits.M)?.roundToInt() ?: 0
+            val distanceM = distanceMAtEnd - distanceMOnStart
+            distanceMOnStart = -1
+
+            val spentKCalAtEnd = energySummary?.activityKcal ?: 0
+            val spentKCal = spentKCalAtEnd - spentKcalOnStart
+            spentKcalOnStart = -1
+
+            val lastWorkout = requireNotNull(sportBeDatabase.getWorkoutById(lastWorkoutId).first())
+            val newWorkout = lastWorkout.copy(
+                endTimestamp = endTimestamp,
+                distanceM = distanceM,
+                stepCount = stepCount,
+                spentKcal = spentKCal,
+            )
+            println("KATE: $newWorkout")
+            sportBeDatabase.updateWorkout(newWorkout)
         }
-        _navigateToHistoryFragment.value = resultWorkout
     }
 
     fun stopWorkoutComplete() {
         _navigateToHistoryFragment.value = null
+    }
+
+    private suspend fun startTimer() = withContext(Dispatchers.Main) {
+        while (isActive) {
+            delay(1000)
+            _currentTimeSecs.value = _currentTimeSecs.value?.plus(1)
+        }
+    }
+
+    private suspend fun startHeartRateObservation() {
+        if (_currentWorkoutId.value == null) {
+            _currentWorkoutId.value = sportBeDatabase.insertWorkout(Workout())
+
+        }
+
+        withContext(Dispatchers.Main) {
+            HealbeSdk.get().TASKS.observeHeartRate().asFlow()
+                .cancellable()
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    if (!it.isEmpty && it.heartRate != 0) {
+                        val currWoId = requireNotNull(_currentWorkoutId.value)
+                        currentWorkoutHeartRateSeries.add(
+                            HeartRateSeriesElement(it.timestamp, currWoId, it.heartRate)
+                        )
+                        _pulse.value = it.heartRate
+                    }
+                }
+        }
     }
 }

@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.navGraphViewModels
+import com.github.forrestdp.healbeapp.R
 import com.github.forrestdp.healbeapp.databinding.FragmentProgressBinding
 
 class ProgressFragment : Fragment() {
 
-    private val viewModel: ProgressViewModel by viewModels()
+    private val viewModel: ProgressViewModel by navGraphViewModels(R.id.workout_in_progress_navigation)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

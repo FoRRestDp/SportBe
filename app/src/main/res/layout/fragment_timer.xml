@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.github.forrestdp.healbeapp.ui.timer.TimerViewModel" />
@@ -74,12 +76,12 @@
             android:text="@{viewModel.time}"
             android:textColor="@color/black"
             android:textSize="20sp"
-            tools:text="00:00:00"
             app:layout_constraintBottom_toTopOf="@+id/workout_pause_button"
             app:layout_constraintEnd_toStartOf="@+id/workout_distance_text"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workout_pulse_badge_text" />
+            app:layout_constraintTop_toBottomOf="@+id/workout_pulse_badge_text"
+            tools:text="00:00:00" />
 
         <TextView
             android:id="@+id/workout_distance_text"
@@ -100,7 +102,9 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
+            android:onClick="@{() -> viewModel.pauseWorkout()}"
             android:src="@drawable/ic_pause"
+            android:visibility="@{(viewModel.isWorkoutStopped || viewModel.isWorkoutPaused) ? View.INVISIBLE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/workout_stop_button"
             app:layout_constraintHorizontal_bias="0.5"
@@ -110,8 +114,9 @@
             android:id="@+id/workout_stop_button"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> viewModel.stopWorkout()}"
+            android:onClick="@{() -> viewModel.stopWorkoutAndNavigateToHistory()}"
             android:src="@drawable/ic_stop_black"
+            android:visibility="@{!viewModel.isWorkoutStopped ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/workout_pause_button"
@@ -158,6 +163,33 @@
             app:layout_constraintStart_toStartOf="@+id/workout_distance_text"
             app:layout_constraintTop_toBottomOf="@+id/workout_distance_text"
             app:layout_constraintVertical_bias="0.0" />
+
+        <ImageButton
+            android:id="@+id/workout_resume_button"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:onClick="@{() -> viewModel.startOrResumeWorkout()}"
+            android:visibility="@{viewModel.isWorkoutPaused ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/workout_stop_button"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_play_arrow"
+            tools:visibility="invisible" />
+
+        <ImageButton
+            android:id="@+id/workout_play_button"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:onClick="@{() -> viewModel.startOrResumeWorkout()}"
+            android:visibility="@{viewModel.isWorkoutStopped ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_play_arrow"
+            tools:visibility="invisible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

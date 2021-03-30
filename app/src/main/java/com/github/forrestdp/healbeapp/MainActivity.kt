@@ -10,11 +10,15 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.github.forrestdp.healbeapp.util.create
 import com.healbe.healbesdk.business_api.HealbeSdk
+import com.healbe.healbesdk.business_api.user.data.DistanceUnits
 import com.healbe.healbesdk.business_api.user.data.HealbeSessionState
 import com.healbe.healbesdk.business_api.user_storage.entity.HealbeDevice
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,6 +50,17 @@ class MainActivity : AppCompatActivity() {
                     println("EGOR: set device")
                     GOBE.connect().await()
                     println("EGOR: connected")
+
+                    val stepCount = HealbeSdk.get().HEALTH_DATA.getEnergySummary(0).firstElement().await()?.get()?.steps
+                    println("EGOR: $stepCount")
+//
+//                    val stepLengthCm = HealbeSdk.get().USER.user.await().bodyMeasurements.stepLengthCM
+//                    val spentKCalories = HealbeSdk.get().HEALTH_DATA.getEnergyData(1616940745621).asFlow()
+//                        .map { list ->
+//                            list.map { energyData -> energyData.energyOut }.sum()
+//                        }
+//                        .onEach { println("DAVE kcal: $it") }
+//                        .reduce { a, b -> a + b } // Суммируем значения
                 }
             }
         }

@@ -5,27 +5,28 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
+import com.github.forrestdp.healbeapp.R
 import com.github.forrestdp.healbeapp.databinding.FragmentTimerBinding
-import com.github.forrestdp.healbeapp.model.database.TimeSeriesDatabase
+import com.github.forrestdp.healbeapp.model.database.SportBeDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.time.ExperimentalTime
 
 class TimerFragment : Fragment() {
 
+    @ExperimentalTime
     @ExperimentalCoroutinesApi
-    private val viewModel: TimerViewModel by viewModels {
+    private val viewModel: TimerViewModel by navGraphViewModels(R.id.workout_in_progress_navigation) {
         TimerViewModelFactory(
-            TimeSeriesDatabase
+            SportBeDatabase
                 .getInstance(requireActivity().application)
-                .timeSeriesDao,
-            TimeSeriesDatabase
-                .getInstance(requireActivity().application)
-                .workoutBoundariesDao,
+                .sportBeDatabaseDao,
             requireActivity().application,
         )
     }
 
+    @ExperimentalTime
     @ExperimentalCoroutinesApi
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,19 +36,17 @@ class TimerFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
+        viewModel.startOrResumeWorkout()
+
         binding.workoutStopButton.setOnClickListener {
-            viewModel.stopWorkout()
+            viewModel.stopWorkoutAndNavigateToHistory()
         }
 
         viewModel.navigateToHistoryFragment.observe(viewLifecycleOwner) {
             if (it != null) {
-                findNavController().navigate(
-                    TimerFragmentDirections.actionNavigationTimerToNavigationHistory(
-                    ).apply {
-                        startTimestamp = it.startTimestamp
-                        endTimestamp = it.endTimestamp
-                    }
-                )
+                findNavController().navigate(TimerFragmentDirections.actionNavigationTimerToNavigationHistory().apply {
+                    justFinishedWorkoutId = it
+                })
                 viewModel.stopWorkoutComplete()
             }
         }

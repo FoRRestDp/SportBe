@@ -1,6 +1,5 @@
 package com.github.forrestdp.healbeapp.ui.history
 
-import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,25 +10,23 @@ import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
 import com.github.forrestdp.healbeapp.R
 import com.github.forrestdp.healbeapp.databinding.FragmentHistoryBinding
-import com.github.forrestdp.healbeapp.model.database.TimeSeriesDatabase
-import com.github.forrestdp.healbeapp.model.database.timestamps.WorkoutTimeBoundaries
+import com.github.forrestdp.healbeapp.model.database.SportBeDatabase
+import com.github.forrestdp.healbeapp.model.database.entities.Workout
 
 class HistoryFragment : Fragment() {
 
-    private val args: HistoryFragmentArgs by navArgs()
+    val navArgs by navArgs<HistoryFragmentArgs>()
 
-    private val viewModel: HistoryViewModel by viewModels {
+    private val viewModel: HistoryViewModel by navGraphViewModels(R.id.workout_in_progress_navigation) {
         HistoryViewModelFactory(
-            TimeSeriesDatabase
+            SportBeDatabase
                 .getInstance(requireActivity().application)
-                .timeSeriesDao,
+                .sportBeDatabaseDao,
+            navArgs.justFinishedWorkoutId,
             requireActivity().application,
-            WorkoutTimeBoundaries(startTimestamp = args.startTimestamp, endTimestamp =  args.endTimestamp),
-            TimeSeriesDatabase
-                .getInstance(requireActivity().application)
-                .workoutBoundariesDao,
         )
     }
 
@@ -40,7 +37,6 @@ class HistoryFragment : Fragment() {
         val binding = FragmentHistoryBinding.inflate(layoutInflater).apply {
             lifecycleOwner = viewLifecycleOwner
         }
-
         binding.viewModel = viewModel
 
         viewModel.workoutLineChartData.observe(viewLifecycleOwner) {
@@ -75,11 +71,6 @@ class HistoryFragment : Fragment() {
         }
 
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-
     }
 
 }

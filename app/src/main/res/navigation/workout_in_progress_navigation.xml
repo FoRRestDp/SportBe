@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/navigation_timer"
         android:name="com.github.forrestdp.healbeapp.ui.timer.TimerFragment"
-        android:label="fragment_timer"
+        android:label="Timer Fragment"
         tools:layout="@layout/fragment_timer" >
         <action
             android:id="@+id/action_navigation_timer_to_navigation_history"
@@ -17,20 +17,16 @@
     <fragment
         android:id="@+id/navigation_history"
         android:name="com.github.forrestdp.healbeapp.ui.history.HistoryFragment"
-        android:label="fragment_history"
+        android:label="History Fragment"
         tools:layout="@layout/fragment_history" >
         <argument
-            android:name="startTimestamp"
-            app:argType="long"
-            android:defaultValue="-1L" />
-        <argument
-            android:name="endTimestamp"
+            android:name="justFinishedWorkoutId"
             app:argType="long"
             android:defaultValue="-1L" />
     </fragment>
     <fragment
         android:id="@+id/navigation_progress"
         android:name="com.github.forrestdp.healbeapp.ui.progress.ProgressFragment"
-        android:label="fragment_progress"
+        android:label="Progress Fragment"
         tools:layout="@layout/fragment_progress" />
 </navigation>

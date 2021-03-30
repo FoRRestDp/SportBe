@@ -3,13 +3,12 @@ package com.github.forrestdp.healbeapp.ui.progress
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.github.forrestdp.healbeapp.model.database.timestamps.WorkoutTimeBoundariesDao
-import com.github.forrestdp.healbeapp.ui.timer.TimerViewModel
+import com.github.forrestdp.healbeapp.model.database.SportBeDatabaseDao
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.lang.IllegalArgumentException
 
 class ProgressViewModelFactory(
-    private val workoutBoundariesDataSource: WorkoutTimeBoundariesDao,
+    private val workoutBoundariesDataSource: SportBeDatabaseDao,
     private val application: Application,
 ) : ViewModelProvider.Factory {
     @ExperimentalCoroutinesApi

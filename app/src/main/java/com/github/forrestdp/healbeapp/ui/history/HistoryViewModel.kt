@@ -2,31 +2,24 @@ package com.github.forrestdp.healbeapp.ui.history
 
 import android.app.Application
 import android.graphics.Color
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.github.forrestdp.healbeapp.model.database.timeseries.TimeSeriesDao
-import com.github.forrestdp.healbeapp.model.database.timeseries.TimeSeriesElement
-import com.github.forrestdp.healbeapp.model.database.timestamps.WorkoutTimeBoundaries
-import com.github.forrestdp.healbeapp.model.database.timestamps.WorkoutTimeBoundariesDao
+import androidx.lifecycle.*
+import com.github.forrestdp.healbeapp.R
+import com.github.forrestdp.healbeapp.model.database.SportBeDatabaseDao
 import com.github.mikephil.charting.data.*
-import com.healbe.healbesdk.business_api.HealbeSdk
-import com.healbe.healbesdk.business_api.user.data.DistanceUnits
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.withContext
+import java.util.*
+import kotlin.math.roundToInt
 
 class HistoryViewModel(
-    private val database: TimeSeriesDao,
+    private val database: SportBeDatabaseDao,
+    private val justFinishedWorkoutId: Long,
     application: Application,
-    private val workoutTimeBoundaries: WorkoutTimeBoundaries,
-    private val databaseWorkouts: WorkoutTimeBoundariesDao,
 ) : AndroidViewModel(application) {
     private val _workoutLineChartData = MutableLiveData<LineData>()
     val workoutLineChartData: LiveData<LineData> = _workoutLineChartData
@@ -34,17 +27,38 @@ class HistoryViewModel(
     private val _workoutPieChartData = MutableLiveData<PieData>()
     val workoutPieChartData: LiveData<PieData> = _workoutPieChartData
 
-    private val _isDataAvailable = MutableLiveData(false)
+    private val _isDataAvailable = MutableLiveData(true)
     val isDataAvailable: LiveData<Boolean> = _isDataAvailable
 
-    private val _workoutSteps = MutableLiveData(728)
+    private val _workoutDistanceKM = MutableLiveData(-1f)
+    val workoutDistanceKM: LiveData<Float> = _workoutDistanceKM
+
+    private val _workoutDurationSecs = MutableLiveData<Long>(1)
+    val workoutDurationString: LiveData<String> = _workoutDurationSecs.map {
+        val hours = it / 3600
+        val minutes = (it % 3600) / 60
+        val seconds = it % 60
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private val _averagePace = MutableLiveData(1) // Средний темп
+    val averagePaceString: LiveData<String> = _averagePace.map {
+        val minutes = it / 60
+        val seconds = it % 60
+        String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
+    }
+
+    private val _workoutSteps = MutableLiveData(-1)
     val workoutSteps: LiveData<Int> = _workoutSteps
 
-    private val _workoutDistance = MutableLiveData(3.6f)
-    val workoutDistance: LiveData<Float> = _workoutDistance
-
-    private val _workoutSpentKcal = MutableLiveData(351)
+    private val _workoutSpentKcal = MutableLiveData(-1)
     val workoutSpentKcal: LiveData<Int> = _workoutSpentKcal
+
+    private val _averageHeartRate = MutableLiveData(-1)
+    val averageHeartRate: LiveData<Int> = _averageHeartRate
+
+    private val _cadence = MutableLiveData(-1) // Шаги в минуту
+    val cadence: LiveData<Int> = _cadence
 
     private val maxHeartRate = 192
     private val restingHeartRate = 75
@@ -53,103 +67,108 @@ class HistoryViewModel(
 
     fun nextSelectedWorkout() {
         selectedWorkout++
-        loadData()
+        //loadData()
     }
 
     fun previousSelectedWorkout() {
         selectedWorkout--
-        loadData()
+        //loadData()
     }
 
     init {
-        if (workoutTimeBoundaries.startTimestamp == -1L &&
-            workoutTimeBoundaries.endTimestamp == -1L
-        ) {
-            _isDataAvailable.value = false
-        } else {
-            _isDataAvailable.value = true
-            loadData()
+        viewModelScope.launch {
+            initializeLastWorkout()
         }
     }
 
-    fun ensureDataIsAvailable() {
-        if (workoutTimeBoundaries.startTimestamp == -1L &&
-            workoutTimeBoundaries.endTimestamp == -1L) {
-            _isDataAvailable.value = false
+    private suspend fun initializeLastWorkout() {
+        val workoutFlow = if (justFinishedWorkoutId == -1L) {
+            database.getLastFinishedWorkout()
         } else {
-            _isDataAvailable.value = true
-            loadData()
+            database.getWorkoutById(justFinishedWorkoutId)
         }
-    }
 
-    private fun loadData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val seriesFlow = database.getWorkout(
-                workoutTimeBoundaries.startTimestamp,
-                workoutTimeBoundaries.endTimestamp,
-            )
+        workoutFlow
+            .onEach { println("HistoryViewModel.kt 92: $it") }
+            .filterNotNull()
+            .filter { it.startTimestamp != it.endTimestamp }
+            .collect { workout ->
+                println(workout)
+                val workoutDistanceKM = workout.distanceM.toFloat() / 1000
+                val workoutDurationSecs = (workout.endTimestamp - workout.startTimestamp) / 1000
+                val stepCount = workout.stepCount
 
-            seriesFlow.collect { series ->
-                val localSeries: MutableList<TimeSeriesElement> = series.map { it }.toMutableList()
+                _workoutDistanceKM.value = workoutDistanceKM
 
-                val first = localSeries.first()
-                val entries: List<Entry> = localSeries.map {
-                    Entry(
-                        (it.timestamp - first.timestamp).toFloat(),
-                        it.bpm.toFloat(),
-                    )
+                _workoutDurationSecs.value = workoutDurationSecs
+                _averagePace.value = if (workoutDistanceKM != 0f) {
+                    (workoutDurationSecs / workoutDistanceKM).roundToInt() / 60
+                } else {
+                    0
+                }
+                _workoutSteps.value = stepCount
+
+                _workoutSpentKcal.value = workout.spentKcal
+                _cadence.value = if (workoutDurationSecs != 0L) {
+                    stepCount / (workoutDurationSecs / 60).toInt()
+                } else {
+                    0
                 }
 
+                val workoutId = workout.id
+                val heartRateSeries = database.getHeartRateSeriesByWorkoutId(workoutId)
+
+                _averageHeartRate.value =
+                    heartRateSeries.map { it.heartRate }.average().roundToInt()
+
+                val heartRateFirstTimestamp = heartRateSeries.first().timestamp
+
+                val lineChartEntries = heartRateSeries.map {
+                    val newTimestamp = it.timestamp - heartRateFirstTimestamp
+                    Entry(newTimestamp.toFloat(), it.heartRate.toFloat())
+                }
+                val lineDataSet = LineDataSet(lineChartEntries, "")
+                val lineData = LineData(lineDataSet)
+
                 withContext(Dispatchers.Main) {
-                    _workoutLineChartData.value = LineData(LineDataSet(entries, "Результат"))
+                    _workoutLineChartData.value = lineData
                 }
 
                 val workoutIntensitySeries =
-                    localSeries.map { (it.bpm - restingHeartRate).toDouble() / (maxHeartRate - restingHeartRate) }
-                println("DAVE: $workoutIntensitySeries")
-                val seriesSize = localSeries.size
+                    heartRateSeries.map {
+                        (it.heartRate - restingHeartRate).toDouble() / (maxHeartRate - restingHeartRate)
+                    }
 
-                val warmupPercentage =
-                    workoutIntensitySeries.filter { it <= 0.6 }.size.toFloat() / seriesSize
-                val normalPercentage =
-                    workoutIntensitySeries.filter { it > 0.6 && it <= 0.7 }.size.toFloat() / seriesSize
-                val aerobicPercentage =
-                    workoutIntensitySeries.filter { it > 0.7 && it <= 0.8 }.size.toFloat() / seriesSize
-                val anaerobicPercentage =
-                    workoutIntensitySeries.filter { it > 0.8 && it <= 0.9 }.size.toFloat() / seriesSize
-                val maximumPercentage =
-                    workoutIntensitySeries.filter { it > 0.9 }.size.toFloat() / seriesSize
+                val noActivityIntensitySize = workoutIntensitySeries.filter { it <= 0.4 }.size.toFloat()
+                val warmUpIntensitySize =
+                    workoutIntensitySeries.filter { it > 0.4 && it <= 0.6 }.size.toFloat()
+                val normalIntensitySize =
+                    workoutIntensitySeries.filter { it > 0.6 && it <= 0.7 }.size.toFloat()
+                val aerobicIntensitySize =
+                    workoutIntensitySeries.filter { it > 0.7 && it <= 0.8 }.size.toFloat()
+                val anaerobicIntensitySize =
+                    workoutIntensitySeries.filter { it > 0.8 && it <= 0.9 }.size.toFloat()
+                val maximumIntensitySize =
+                    workoutIntensitySeries.filter { it > 0.9 }.size.toFloat()
 
                 val pieEntries = listOf(
-                    PieEntry(warmupPercentage, "Лёгкая активность"),
-                    PieEntry(normalPercentage, "Сжигание жира"),
-                    PieEntry(aerobicPercentage, "Аэробная"),
-                    PieEntry(anaerobicPercentage, "Анаэробная"),
-                    PieEntry(maximumPercentage, "Максимальная нагрузка"),
+                    PieEntry(noActivityIntensitySize, "В покое"),
+                    PieEntry(warmUpIntensitySize, "Лёгкая активность"),
+                    PieEntry(normalIntensitySize, "Сжигание жира"),
+                    PieEntry(aerobicIntensitySize, "Аэробная"),
+                    PieEntry(anaerobicIntensitySize, "Анаэробная"),
+                    PieEntry(maximumIntensitySize, "Максимальная нагрузка"),
                 )
 
                 val pieDataSet = PieDataSet(pieEntries, "Зоны пульса").apply {
                     colors =
-                        listOf(Color.CYAN, Color.GREEN, Color.RED, Color.BLUE, Color.YELLOW)
+                        listOf(Color.WHITE, Color.CYAN, Color.GREEN, Color.RED, Color.BLUE, Color.YELLOW)
                     valueTextColor = Color.BLACK
                 }
 
                 withContext(Dispatchers.Main) {
                     _workoutPieChartData.value = PieData(pieDataSet)
                 }
-
             }
-
-            val healthData = HealbeSdk.get().HEALTH_DATA
-            val steps = healthData.getStepsDataCount(workoutTimeBoundaries.startTimestamp).await()
-            healthData.getEnergySummary(workoutTimeBoundaries.startTimestamp, workoutTimeBoundaries.endTimestamp).asFlow().collect { list ->
-                val kcal = list.map { it.get()?.activityKcal ?: 0 }.sum()
-                val distance = list.map { it.get()?.getDistance(DistanceUnits.KM) ?: 0.0f }.sum()
-                _workoutSpentKcal.postValue(kcal)
-                _workoutDistance.postValue(distance)
-            }
-
-            _workoutSteps.value = steps
-        }
     }
 }
