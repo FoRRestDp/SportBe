@@ -10,4 +10,4 @@ private val device: HealbeDevice = HealbeDevice.create(
         pin = "Device pin",
 )
 ```
-to suitable for your account and HealBe device.
+to suitable for your account and Healbe device.
