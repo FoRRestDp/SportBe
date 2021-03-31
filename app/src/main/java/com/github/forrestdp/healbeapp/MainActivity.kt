@@ -22,12 +22,12 @@ import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
-    private val email: String = "egorponomarev93@gmail.com"
-    private val password: String = "dYnfoc-quxmiq-4fewka"
+    private val email: String = "example@mail.com"
+    private val password: String = "your_password"
     private val device: HealbeDevice = HealbeDevice.create(
-        name = "Healbe 78:9B:AF",
-        mac = "88:6B:0F:78:9B:AF",
-        pin = "091297",
+        name = "Device name",
+        mac = "Device mac adress",
+        pin = "Device pin",
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
