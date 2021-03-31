@@ -54,19 +54,22 @@ class HistoryFragment : Fragment() {
             }
         }
 
-        viewModel.isDataAvailable.observe(viewLifecycleOwner) { isDataAvailable: Boolean? ->
-            if (isDataAvailable != true) {
-                binding.historyLinearLayout.children.forEach {
+        viewModel.isNoDataAvailable.observe(viewLifecycleOwner) { isNoDataAvailable: Boolean? ->
+            when (isNoDataAvailable) {
+                true -> {
+                    binding.historyLinearLayout.children.forEach {
                         it.visibility = INVISIBLE
 
+                    }
+                    binding.workoutHistoryPulseDynamic.visibility = VISIBLE
+                    binding.workoutHistoryPulseDynamic.text = "Во время тренировки статистика недоступна"
                 }
-                binding.workoutHistoryPulseDynamic.visibility = VISIBLE
-                binding.workoutHistoryPulseDynamic.text = "Во время тренировки статистика недоступна"
-            } else {
-                binding.historyLinearLayout.children.forEach {
-                    it.visibility = VISIBLE
+                false -> {
+                    binding.historyLinearLayout.children.forEach {
+                        it.visibility = VISIBLE
+                    }
+                    binding.workoutHistoryPulseDynamic.text = "Динамика пульса"
                 }
-                binding.workoutHistoryPulseDynamic.text = "Динамика пульса"
             }
         }
 

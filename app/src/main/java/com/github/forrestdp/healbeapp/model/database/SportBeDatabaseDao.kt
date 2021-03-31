@@ -49,4 +49,11 @@ interface SportBeDatabaseDao {
     """
     )
     fun getLastFinishedWorkout(): Flow<Workout?>
+
+    @Query(
+        """
+        SELECT count(*) FROM workouts_table
+    """
+    )
+    fun getWorkoutsCount(): Flow<Int>
 }

@@ -3,15 +3,14 @@ package com.github.forrestdp.healbeapp.ui.history
 import android.app.Application
 import android.graphics.Color
 import androidx.lifecycle.*
-import com.github.forrestdp.healbeapp.R
 import com.github.forrestdp.healbeapp.model.database.SportBeDatabaseDao
+import com.github.forrestdp.healbeapp.model.database.entities.Workout
 import com.github.mikephil.charting.data.*
+import com.healbe.healbesdk.business_api.HealbeSdk
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.math.roundToInt
@@ -27,8 +26,8 @@ class HistoryViewModel(
     private val _workoutPieChartData = MutableLiveData<PieData>()
     val workoutPieChartData: LiveData<PieData> = _workoutPieChartData
 
-    private val _isDataAvailable = MutableLiveData(true)
-    val isDataAvailable: LiveData<Boolean> = _isDataAvailable
+    private val _isNoDataAvailable = MutableLiveData<Boolean>()
+    val isNoDataAvailable: LiveData<Boolean> = _isNoDataAvailable
 
     private val _workoutDistanceKM = MutableLiveData(-1f)
     val workoutDistanceKM: LiveData<Float> = _workoutDistanceKM
@@ -60,7 +59,6 @@ class HistoryViewModel(
     private val _cadence = MutableLiveData(-1) // Шаги в минуту
     val cadence: LiveData<Int> = _cadence
 
-    private val maxHeartRate = 192
     private val restingHeartRate = 75
 
     private var selectedWorkout = 0
@@ -82,12 +80,43 @@ class HistoryViewModel(
     }
 
     private suspend fun initializeLastWorkout() {
-        val workoutFlow = if (justFinishedWorkoutId == -1L) {
-            database.getLastFinishedWorkout()
-        } else {
-            database.getWorkoutById(justFinishedWorkoutId)
-        }
+        val numberOfWorkoutsFlow = database.getWorkoutsCount()
 
+        numberOfWorkoutsFlow.collect { numberOfWorkouts ->
+            when (numberOfWorkouts) {
+                0 -> {
+                    _isNoDataAvailable.value = true
+                }
+                1 -> {
+                    if (justFinishedWorkoutId == -1L) {
+                        database.getLastFinishedWorkout().collect {
+                            if (it == null) {
+                                _isNoDataAvailable.value = true
+                            } else {
+                                _isNoDataAvailable.value = false
+                                val workoutFlow = it
+                                loadData(flowOf(workoutFlow))
+                            }
+                        }
+                    } else {
+                        val workoutFlow = database.getWorkoutById(justFinishedWorkoutId)
+                        loadData(workoutFlow)
+                    }
+                }
+                2 -> {
+                    val workoutFlow = if (justFinishedWorkoutId == -1L) {
+                        database.getLastFinishedWorkout()
+                    } else {
+                        database.getWorkoutById(justFinishedWorkoutId)
+                    }
+
+                    loadData(workoutFlow)
+                }
+            }
+        }
+    }
+
+    private suspend fun loadData(workoutFlow: Flow<Workout?>) {
         workoutFlow
             .onEach { println("HistoryViewModel.kt 92: $it") }
             .filterNotNull()
@@ -133,13 +162,19 @@ class HistoryViewModel(
                 withContext(Dispatchers.Main) {
                     _workoutLineChartData.value = lineData
                 }
+                val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+                val userBirthYear = HealbeSdk.get().USER.user.await().birthDate.Y
+                val userAge = currentYear - userBirthYear
+
+                val maxHeartRate = 220 - userAge
 
                 val workoutIntensitySeries =
                     heartRateSeries.map {
                         (it.heartRate - restingHeartRate).toDouble() / (maxHeartRate - restingHeartRate)
                     }
 
-                val noActivityIntensitySize = workoutIntensitySeries.filter { it <= 0.4 }.size.toFloat()
+                val noActivityIntensitySize =
+                    workoutIntensitySeries.filter { it <= 0.4 }.size.toFloat()
                 val warmUpIntensitySize =
                     workoutIntensitySeries.filter { it > 0.4 && it <= 0.6 }.size.toFloat()
                 val normalIntensitySize =
@@ -162,7 +197,14 @@ class HistoryViewModel(
 
                 val pieDataSet = PieDataSet(pieEntries, "Зоны пульса").apply {
                     colors =
-                        listOf(Color.WHITE, Color.CYAN, Color.GREEN, Color.RED, Color.BLUE, Color.YELLOW)
+                        listOf(
+                            Color.WHITE,
+                            Color.parseColor("#FF9B70"),
+                            Color.parseColor("#CB15BE"),
+                            Color.parseColor("#00ABFF"),
+                            Color.parseColor("#FD0D92"),
+                            Color.parseColor("#FD0D0D"),
+                        )
                     valueTextColor = Color.BLACK
                 }
 
