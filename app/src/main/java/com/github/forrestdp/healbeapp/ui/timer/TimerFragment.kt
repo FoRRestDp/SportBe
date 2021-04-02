@@ -47,7 +47,7 @@ class TimerFragment : Fragment() {
                 findNavController().navigate(TimerFragmentDirections.actionNavigationTimerToNavigationHistory().apply {
                     justFinishedWorkoutId = it
                 })
-                viewModel.stopWorkoutComplete()
+                viewModel.navigateToHistoryComplete()
             }
         }
 

@@ -103,7 +103,7 @@ class HistoryViewModel(
                         loadData(workoutFlow)
                     }
                 }
-                2 -> {
+                else -> {
                     val workoutFlow = if (justFinishedWorkoutId == -1L) {
                         database.getLastFinishedWorkout()
                     } else {
@@ -139,7 +139,7 @@ class HistoryViewModel(
 
                 _workoutSpentKcal.value = workout.spentKcal
                 _cadence.value = if (workoutDurationSecs != 0L) {
-                    stepCount / (workoutDurationSecs / 60).toInt()
+                    (stepCount / (workoutDurationSecs.toDouble() / 60)).roundToInt()
                 } else {
                     0
                 }

@@ -131,7 +131,7 @@ class TimerViewModel(
         }
     }
 
-    fun stopWorkoutComplete() {
+    fun navigateToHistoryComplete() {
         _navigateToHistoryFragment.value = null
     }
 
@@ -145,7 +145,6 @@ class TimerViewModel(
     private suspend fun startHeartRateObservation() {
         if (_currentWorkoutId.value == null) {
             _currentWorkoutId.value = sportBeDatabase.insertWorkout(Workout())
-
         }
 
         withContext(Dispatchers.Main) {
