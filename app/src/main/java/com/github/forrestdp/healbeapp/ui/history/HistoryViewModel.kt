@@ -198,7 +198,7 @@ class HistoryViewModel(
                 val pieDataSet = PieDataSet(pieEntries, "Зоны пульса").apply {
                     colors =
                         listOf(
-                            Color.WHITE,
+                            Color.LTGRAY,
                             Color.parseColor("#FF9B70"),
                             Color.parseColor("#CB15BE"),
                             Color.parseColor("#00ABFF"),
