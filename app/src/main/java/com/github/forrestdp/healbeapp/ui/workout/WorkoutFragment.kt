@@ -41,9 +41,10 @@ class WorkoutFragment : Fragment() {
 
         workoutViewModel.startWorkoutInProgressActivity.observe(viewLifecycleOwner) { workoutSettings ->
             if (workoutSettings != null) {
-                val intent = Intent(requireActivity(), WorkoutInProgressActivity::class.java).apply {
-                    putExtra(WORKOUT_IN_PROGRESS_EXTRA, workoutSettings)
-                }
+                val intent =
+                    Intent(requireActivity(), WorkoutInProgressActivity::class.java).apply {
+                        putExtra(WORKOUT_IN_PROGRESS_EXTRA, workoutSettings)
+                    }
                 startActivity(intent)
                 workoutViewModel.startWorkoutComplete()
             }

@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import com.github.forrestdp.healbeapp.util.ShrinkedWallPost
 
 class PostViewModel(wallPost: ShrinkedWallPost, app: Application) : ViewModel() {
-    // TODO: Implement the ViewModel
     private val _selectedPost = MutableLiveData<ShrinkedWallPost>()
     val selectedPost: LiveData<ShrinkedWallPost> = _selectedPost
 

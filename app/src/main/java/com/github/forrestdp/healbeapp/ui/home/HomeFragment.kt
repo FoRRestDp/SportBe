@@ -10,8 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import com.github.forrestdp.healbeapp.databinding.FragmentHomeBinding
 
-// const val REQUEST_ENABLE_BT = 32893
-
 class HomeFragment : Fragment() {
 
     private val homeViewModel: HomeViewModel by viewModels()
@@ -23,7 +21,6 @@ class HomeFragment : Fragment() {
     ): View {
         val binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        // val root = inflater.inflate(R.layout.fragment_home, container, false)
         binding.buttonWorkout.setOnClickListener {
             it.findNavController()
                 .navigate(HomeFragmentDirections.actionNavigationHomeToNavigationWorkout())

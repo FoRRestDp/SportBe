@@ -6,13 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.github.forrestdp.healbeapp.model.database.SportBeDatabaseDao
-import com.github.forrestdp.healbeapp.util.CombinedLiveData
 import com.github.mikephil.charting.data.*
-import com.healbe.healbesdk.business_api.HealbeSdk
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.asFlow
 
 class ProgressViewModel(
     private val database: SportBeDatabaseDao,

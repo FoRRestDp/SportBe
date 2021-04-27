@@ -121,7 +121,6 @@ class TimerViewModel(
             val energySummary = HealbeSdk.get().HEALTH_DATA.getEnergySummary(0).awaitFirst().get()
 
             val stepCountAtEnd = energySummary?.steps ?: 0
-            println("DAVE: steps at end: $stepCountAtEnd")
             val stepCount = stepCountAtEnd - stepCountOnStart
             stepCountOnStart = -1
 
@@ -140,7 +139,6 @@ class TimerViewModel(
                 stepCount = stepCount,
                 spentKcal = spentKCal,
             )
-            println("KATE: $newWorkout")
             sportBeDatabase.updateWorkout(newWorkout)
         }
     }

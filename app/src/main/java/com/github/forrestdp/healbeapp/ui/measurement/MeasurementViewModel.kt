@@ -33,7 +33,7 @@ class MeasurementViewModel : ViewModel(), FragmentToolbarable {
             _name.postValue(user.userName.firstName)
             _height.postValue(user.bodyMeasurements.heightCM.toString())
             _weight.postValue(user.bodyMeasurements.weightKG.toString())
-            _sex.postValue(if (user.gender == 0) "Мужской" else "Женский")
+            _sex.postValue(if (user.gender == 0) "Женский" else "Мужской")
         }
     }
 }

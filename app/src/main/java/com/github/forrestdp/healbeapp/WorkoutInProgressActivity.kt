@@ -19,23 +19,7 @@ class WorkoutInProgressActivity : AppCompatActivity() {
         setContentView(R.layout.activity_workout_in_progress)
 
         val navView: BottomNavigationView = findViewById(R.id.top_nav_view)
-        // Почему-то не работает
         val navController = findNavController(R.id.nav_host_fragment_workout)
         navView.setupWithNavController(navController)
-
-
-//        navView.setOnNavigationItemSelectedListener { item ->
-//            val selectedFragment = when (item.itemId) {
-//                R.id.action_current_workout -> TimerFragment()
-//                R.id.action_history -> HistoryFragment()
-//                R.id.action_progress -> ProgressFragment()
-//                else -> null
-//            }
-//
-//            requireNotNull(selectedFragment)
-//
-//            supportFragmentManager.beginTransaction().replace(R.id.nav_host_fragment_container, selectedFragment).commit()
-//            true
-//        }
     }
 }

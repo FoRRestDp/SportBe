@@ -18,7 +18,7 @@ import com.github.forrestdp.healbeapp.model.database.entities.Workout
 
 class HistoryFragment : Fragment() {
 
-    val navArgs by navArgs<HistoryFragmentArgs>()
+    private val navArgs by navArgs<HistoryFragmentArgs>()
 
     private val viewModel: HistoryViewModel by navGraphViewModels(R.id.workout_in_progress_navigation) {
         HistoryViewModelFactory(
