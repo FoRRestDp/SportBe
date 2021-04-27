@@ -25,7 +25,7 @@
                 style="@style/WorkoutInProgressTitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Прогресс"
+                android:text="@string/progress_progress"
                 android:textAlignment="center" />
 
             <LinearLayout
@@ -45,7 +45,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="за всё время"
+                    android:text="@string/progress_duration"
                     app:layout_constraintEnd_toStartOf="@+id/imageView5"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/imageView4"

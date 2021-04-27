@@ -41,4 +41,12 @@
         <item>Английский</item>
     </string-array>
     <string name="workout_history_line_chart_label">Динамика пульса</string>
+    <string name="measurement_height">Рост</string>
+    <string name="measurement_weight">Вес</string>
+    <string name="measurement_gender">Пол</string>
+    <string name="measurement_training_level">Ваш уровень подготовки:</string>
+    <string name="measurement_newbie">Новичок</string>
+    <string name="measurement_regularity">Вы никогда раньше не тренировались регулярно</string>
+    <string name="progress_progress">Прогресс</string>
+    <string name="progress_duration">за всё время</string>
 </resources>
