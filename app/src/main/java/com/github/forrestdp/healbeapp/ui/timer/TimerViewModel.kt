@@ -61,14 +61,10 @@ class TimerViewModel(
             startHeartRateObservation()
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val energySummary = HealbeSdk.get().HEALTH_DATA.getEnergySummary(0).awaitFirst().get()
-            stepCountOnStart = energySummary?.steps ?: 0
-            println("DAVE: steps at start ${energySummary?.steps ?: 0}")
-            spentKcalOnStart = energySummary?.activityKcal ?: 0
-            distanceMOnStart = energySummary?.getDistance(DistanceUnits.M)?.roundToInt() ?: 0
-        }
+        saveEmptyWorkoutToDatabase()
     }
+
+
 
     fun pauseWorkout() {
         _isWorkoutPaused.value = true
@@ -90,6 +86,24 @@ class TimerViewModel(
 
         _navigateToHistoryFragment.value = lastWorkoutId
 
+        saveDataToDatabase(lastWorkoutId)
+    }
+
+    fun navigateToHistoryComplete() {
+        _navigateToHistoryFragment.value = null
+    }
+
+    private fun saveEmptyWorkoutToDatabase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val energySummary = HealbeSdk.get().HEALTH_DATA.getEnergySummary(0).awaitFirst().get()
+            stepCountOnStart = energySummary?.steps ?: 0
+            println("DAVE: steps at start ${energySummary?.steps ?: 0}")
+            spentKcalOnStart = energySummary?.activityKcal ?: 0
+            distanceMOnStart = energySummary?.getDistance(DistanceUnits.M)?.roundToInt() ?: 0
+        }
+    }
+
+    private fun saveDataToDatabase(lastWorkoutId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             if (currentWorkoutHeartRateSeries.isEmpty()) {
                 val lastWorkout =
@@ -129,10 +143,6 @@ class TimerViewModel(
             println("KATE: $newWorkout")
             sportBeDatabase.updateWorkout(newWorkout)
         }
-    }
-
-    fun navigateToHistoryComplete() {
-        _navigateToHistoryFragment.value = null
     }
 
     private suspend fun startTimer() = withContext(Dispatchers.Main) {

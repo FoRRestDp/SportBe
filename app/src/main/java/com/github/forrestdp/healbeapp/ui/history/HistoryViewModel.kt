@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Color
 import androidx.lifecycle.*
 import com.github.forrestdp.healbeapp.model.database.SportBeDatabaseDao
+import com.github.forrestdp.healbeapp.model.database.entities.HeartRateSeriesElement
 import com.github.forrestdp.healbeapp.model.database.entities.Workout
 import com.github.mikephil.charting.data.*
 import com.healbe.healbesdk.business_api.HealbeSdk
@@ -118,99 +119,120 @@ class HistoryViewModel(
 
     private suspend fun loadData(workoutFlow: Flow<Workout?>) {
         workoutFlow
-            .onEach { println("HistoryViewModel.kt 92: $it") }
             .filterNotNull()
             .filter { it.startTimestamp != it.endTimestamp }
             .collect { workout ->
-                println(workout)
                 val workoutDistanceKM = workout.distanceM.toFloat() / 1000
                 val workoutDurationSecs = (workout.endTimestamp - workout.startTimestamp) / 1000
                 val stepCount = workout.stepCount
-
-                _workoutDistanceKM.value = workoutDistanceKM
-
-                _workoutDurationSecs.value = workoutDurationSecs
-                _averagePace.value = if (workoutDistanceKM != 0f) {
-                    (workoutDurationSecs / workoutDistanceKM).roundToInt() / 60
-                } else {
-                    0
-                }
-                _workoutSteps.value = stepCount
-
-                _workoutSpentKcal.value = workout.spentKcal
-                _cadence.value = if (workoutDurationSecs != 0L) {
-                    (stepCount / (workoutDurationSecs.toDouble() / 60)).roundToInt()
-                } else {
-                    0
-                }
-
                 val workoutId = workout.id
                 val heartRateSeries = database.getHeartRateSeriesByWorkoutId(workoutId)
 
-                _averageHeartRate.value =
-                    heartRateSeries.map { it.heartRate }.average().roundToInt()
-
-                val heartRateFirstTimestamp = heartRateSeries.first().timestamp
-
-                val lineChartEntries = heartRateSeries.map {
-                    val newTimestamp = it.timestamp - heartRateFirstTimestamp
-                    Entry(newTimestamp.toFloat(), it.heartRate.toFloat())
-                }
-                val lineDataSet = LineDataSet(lineChartEntries, "")
-                val lineData = LineData(lineDataSet)
-
-                withContext(Dispatchers.Main) {
-                    _workoutLineChartData.value = lineData
-                }
-                val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-                val userBirthYear = HealbeSdk.get().USER.user.await().birthDate.Y
-                val userAge = currentYear - userBirthYear
-
-                val maxHeartRate = 220 - userAge
-
-                val workoutIntensitySeries =
-                    heartRateSeries.map {
-                        (it.heartRate - restingHeartRate).toDouble() / (maxHeartRate - restingHeartRate)
-                    }
-
-                val noActivityIntensitySize =
-                    workoutIntensitySeries.filter { it <= 0.4 }.size.toFloat()
-                val warmUpIntensitySize =
-                    workoutIntensitySeries.filter { it > 0.4 && it <= 0.6 }.size.toFloat()
-                val normalIntensitySize =
-                    workoutIntensitySeries.filter { it > 0.6 && it <= 0.7 }.size.toFloat()
-                val aerobicIntensitySize =
-                    workoutIntensitySeries.filter { it > 0.7 && it <= 0.8 }.size.toFloat()
-                val anaerobicIntensitySize =
-                    workoutIntensitySeries.filter { it > 0.8 && it <= 0.9 }.size.toFloat()
-                val maximumIntensitySize =
-                    workoutIntensitySeries.filter { it > 0.9 }.size.toFloat()
-
-                val pieEntries = listOf(
-                    PieEntry(noActivityIntensitySize, "В покое"),
-                    PieEntry(warmUpIntensitySize, "Лёгкая активность"),
-                    PieEntry(normalIntensitySize, "Сжигание жира"),
-                    PieEntry(aerobicIntensitySize, "Аэробная"),
-                    PieEntry(anaerobicIntensitySize, "Анаэробная"),
-                    PieEntry(maximumIntensitySize, "Максимальная нагрузка"),
+                initDataTable(
+                    workoutDistanceKM,
+                    workoutDurationSecs,
+                    stepCount,
+                    workout,
+                    heartRateSeries,
                 )
 
-                val pieDataSet = PieDataSet(pieEntries, "Зоны пульса").apply {
-                    colors =
-                        listOf(
-                            Color.LTGRAY,
-                            Color.parseColor("#FF9B70"),
-                            Color.parseColor("#CB15BE"),
-                            Color.parseColor("#00ABFF"),
-                            Color.parseColor("#FD0D92"),
-                            Color.parseColor("#FD0D0D"),
-                        )
-                    valueTextColor = Color.BLACK
-                }
-
-                withContext(Dispatchers.Main) {
-                    _workoutPieChartData.value = PieData(pieDataSet)
-                }
+                initLineChart(heartRateSeries)
+                initPieChart(heartRateSeries)
             }
+    }
+
+    private suspend fun initPieChart(heartRateSeries: List<HeartRateSeriesElement>) {
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        val userBirthYear = HealbeSdk.get().USER.user.await().birthDate.Y
+        val userAge = currentYear - userBirthYear
+
+        val maxHeartRate = 220 - userAge
+
+        val workoutIntensitySeries =
+            heartRateSeries.map {
+                (it.heartRate - restingHeartRate).toDouble() / (maxHeartRate - restingHeartRate)
+            }
+
+        val noActivityIntensitySize =
+            workoutIntensitySeries.filter { it <= 0.4 }.size.toFloat()
+        val warmUpIntensitySize =
+            workoutIntensitySeries.filter { it > 0.4 && it <= 0.6 }.size.toFloat()
+        val normalIntensitySize =
+            workoutIntensitySeries.filter { it > 0.6 && it <= 0.7 }.size.toFloat()
+        val aerobicIntensitySize =
+            workoutIntensitySeries.filter { it > 0.7 && it <= 0.8 }.size.toFloat()
+        val anaerobicIntensitySize =
+            workoutIntensitySeries.filter { it > 0.8 && it <= 0.9 }.size.toFloat()
+        val maximumIntensitySize =
+            workoutIntensitySeries.filter { it > 0.9 }.size.toFloat()
+
+        val pieEntries = listOf(
+            PieEntry(noActivityIntensitySize, "В покое"),
+            PieEntry(warmUpIntensitySize, "Лёгкая активность"),
+            PieEntry(normalIntensitySize, "Сжигание жира"),
+            PieEntry(aerobicIntensitySize, "Аэробная"),
+            PieEntry(anaerobicIntensitySize, "Анаэробная"),
+            PieEntry(maximumIntensitySize, "Максимальная нагрузка"),
+        )
+
+        val pieDataSet = PieDataSet(pieEntries, "Зоны пульса").apply {
+            colors =
+                listOf(
+                    Color.LTGRAY,
+                    Color.parseColor("#FF9B70"),
+                    Color.parseColor("#CB15BE"),
+                    Color.parseColor("#00ABFF"),
+                    Color.parseColor("#FD0D92"),
+                    Color.parseColor("#FD0D0D"),
+                )
+            valueTextColor = Color.BLACK
+        }
+
+        withContext(Dispatchers.Main) {
+            _workoutPieChartData.value = PieData(pieDataSet)
+        }
+    }
+
+    private suspend fun initLineChart(heartRateSeries: List<HeartRateSeriesElement>) {
+        val heartRateFirstTimestamp = heartRateSeries.first().timestamp
+
+        val lineChartEntries = heartRateSeries.map {
+            val newTimestamp = it.timestamp - heartRateFirstTimestamp
+            Entry(newTimestamp.toFloat(), it.heartRate.toFloat())
+        }
+        val lineDataSet = LineDataSet(lineChartEntries, "")
+        val lineData = LineData(lineDataSet)
+
+        withContext(Dispatchers.Main) {
+            _workoutLineChartData.value = lineData
+        }
+    }
+
+    private fun initDataTable(
+        workoutDistanceKM: Float,
+        workoutDurationSecs: Long,
+        stepCount: Int,
+        workout: Workout,
+        heartRateSeries: List<HeartRateSeriesElement>
+    ) {
+        _workoutDistanceKM.value = workoutDistanceKM
+
+        _workoutDurationSecs.value = workoutDurationSecs
+        _averagePace.value = if (workoutDistanceKM != 0f) {
+            (workoutDurationSecs / workoutDistanceKM).roundToInt() / 60
+        } else {
+            0
+        }
+        _workoutSteps.value = stepCount
+
+        _workoutSpentKcal.value = workout.spentKcal
+        _cadence.value = if (workoutDurationSecs != 0L) {
+            (stepCount / (workoutDurationSecs.toDouble() / 60)).roundToInt()
+        } else {
+            0
+        }
+
+        _averageHeartRate.value =
+            heartRateSeries.map { it.heartRate }.average().roundToInt()
     }
 }

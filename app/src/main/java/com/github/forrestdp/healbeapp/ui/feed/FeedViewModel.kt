@@ -49,12 +49,6 @@ class FeedViewModel : ViewModel(), FragmentToolbarable {
             )
         )
         viewModelScope.launch {
-//            val posts = api.wall.get(-140230980, count = 10).execute().get()
-//            val post = posts.items[0]
-//            _posts.value = post.attachments?.get(0)?.photo?.sizes?.first { it.type?.equals("r") ?: false }?.src
-
-            println("CATHERINE: ${_posts}")
-
             _posts.value = api
                 .wall
                 .get(-140230980).execute().get()
