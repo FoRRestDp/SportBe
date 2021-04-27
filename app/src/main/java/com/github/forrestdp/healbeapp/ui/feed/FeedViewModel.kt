@@ -44,7 +44,7 @@ class FeedViewModel : ViewModel(), FragmentToolbarable {
     private fun getPosts() {
         val api = VkApiUser(
             VkApiClient(
-                "",
+                "77c481fd77c481fd77c481fd2e77b23213777c477c481fd17fb084e6a6e0c09eab0229d",
                 HttpClient(CIO)
             )
         )

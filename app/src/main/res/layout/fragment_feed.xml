@@ -41,29 +41,5 @@
 
         </androidx.recyclerview.widget.RecyclerView>
 
-        <!--        <TextView-->
-        <!--            android:id="@+id/textViewOld"-->
-        <!--            style="@style/TitleText"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="@string/feed_title_text"-->
-        <!--            app:layout_constraintBottom_toBottomOf="@+id/feed_toolbar"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintHorizontal_bias="0.14"-->
-        <!--            app:layout_constraintStart_toStartOf="@+id/feed_toolbar"-->
-        <!--            app:layout_constraintTop_toTopOf="@+id/feed_toolbar"-->
-        <!--            app:layout_constraintVertical_bias="0.65" />-->
-
-        <!--        <ImageView-->
-        <!--            android:id="@+id/imageViewOld"-->
-        <!--            android:layout_width="135dp"-->
-        <!--            android:layout_height="132dp"-->
-        <!--            app:layout_constraintBottom_toBottomOf="@+id/feed_toolbar"-->
-        <!--            app:layout_constraintEnd_toEndOf="@+id/feed_toolbar"-->
-        <!--            app:layout_constraintHorizontal_bias="0.71"-->
-        <!--            app:layout_constraintStart_toEndOf="@+id/textViewOld"-->
-        <!--            app:layout_constraintTop_toTopOf="@+id/feed_toolbar"-->
-        <!--            app:srcCompat="@drawable/ic_feed_title" />-->
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

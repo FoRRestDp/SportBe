@@ -22,12 +22,12 @@ import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
-    private val email: String = "egorponomarev93@gmail.com"
-    private val password: String = "dYnfoc-quxmiq-4fewka"
+    private val email: String = ""
+    private val password: String = ""
     private val device: HealbeDevice = HealbeDevice.create(
-        name = "Healbe 78:9B:AF",
-        mac = "88:6B:0F:78:9B:AF",
-        pin = "091297",
+        name = "",
+        mac = "",
+        pin = "",
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,28 +39,9 @@ class MainActivity : AppCompatActivity() {
             with(HealbeSdk.get()) {
                 withContext(Dispatchers.IO) {
                     USER.prepareSession().await()
-                    println("EGOR: prepared session")
-                    val sessionState = USER.login(email, password).await()
-                    println("EGOR: logged in")
-                    if (!HealbeSessionState.isUserValid(sessionState)) {
-//                    throw RuntimeException("user invalid")
-                        println("User is invalid")
-                    }
+                    USER.login(email, password).await()
                     GOBE.set(device).await()
-                    println("EGOR: set device")
                     GOBE.connect().await()
-                    println("EGOR: connected")
-
-                    val stepCount = HealbeSdk.get().HEALTH_DATA.getEnergySummary(0).firstElement().await()?.get()?.steps
-                    println("EGOR: $stepCount")
-//
-//                    val stepLengthCm = HealbeSdk.get().USER.user.await().bodyMeasurements.stepLengthCM
-//                    val spentKCalories = HealbeSdk.get().HEALTH_DATA.getEnergyData(1616940745621).asFlow()
-//                        .map { list ->
-//                            list.map { energyData -> energyData.energyOut }.sum()
-//                        }
-//                        .onEach { println("DAVE kcal: $it") }
-//                        .reduce { a, b -> a + b } // Суммируем значения
                 }
             }
         }

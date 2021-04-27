@@ -49,4 +49,11 @@
     <string name="measurement_regularity">Вы никогда раньше не тренировались регулярно</string>
     <string name="progress_progress">Прогресс</string>
     <string name="progress_duration">за всё время</string>
+    <string name="timer_current_workout">Текущая тренировка</string>
+    <string name="timer_bpm_units">уд. мин</string>
+    <string name="timer_pulse">Пульс</string>
+    <string name="timer_initial_value">0,0</string>
+    <string name="timer_distance_units">км</string>
+    <string name="timer_time">Время</string>
+    <string name="timer_distance">Дистанция</string>
 </resources>
